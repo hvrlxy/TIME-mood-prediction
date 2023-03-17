@@ -5,6 +5,7 @@ import warnings
 from logger import Logger
 from participant import Participant
 from globals import *
+import json
 
 warnings.filterwarnings("ignore")
 
@@ -61,7 +62,19 @@ class EMA:
         remove the rows at the end of the df with 
         answer_status = NeverStarted or PartiallyCompleted
         '''
-        
+        #check if the number of rows with answer_status = NeverStarted or PartiallyCompleted is 0
+        if len(EMA_df[EMA_df['answer_status'].isin(['NeverStarted', 'PartiallyCompleted'])]) == 0:
+            return EMA_df
+        # get the index of the last row with answer_status = NeverStarted or PartiallyCompleted
+        last_index = EMA_df[EMA_df['answer_status'].isin(['NeverStarted', 'PartiallyCompleted'])].index[-1]
+        #get the last index of the EMA_df
+        last_index_of_df = EMA_df.index[-1]
+        #if the last_index is not the last index of the EMA_df, remove the rows after the last_index
+        while last_index == last_index_of_df:
+            EMA_df = EMA_df.drop(last_index_of_df)
+            last_index_of_df = EMA_df.index[-1]
+            last_index = EMA_df[EMA_df['answer_status'].isin(['NeverStarted', 'PartiallyCompleted'])].index[-1]
+        return EMA_df
     
     def encode_EMA_results(self, participantID):
         #get EMA df
@@ -77,6 +90,8 @@ class EMA:
 
         #impute the missing date
         EMA_df = self.impute_missing_date(EMA_df)
+        #remove the tail rows
+        EMA_df = self.remove_tail_rows(EMA_df)
         #add an ID column to the front of the EMA_df
         EMA_df.insert(0, 'participantID', participantID)
         #impute NaN with -1 for all columns
@@ -113,18 +128,30 @@ class EMA:
         summary_df.to_excel(self.REPORTS_DIR + 'EMA/summary_all_participants.xlsx', index=False)
 
         return summary_df
+
     def process_all_participants_ema(self):
         # get the list of completed participants
         participant_list = self.participant.get_completed_participant_list()
         #create a df to store the EMA results
         df = pd.DataFrame()
+        #create a json object with participantID as key and a list of start_date and end_date as value
+        participant_dict = {}
         #loop through all the participants
         for participantID in participant_list:
             # process the EMA results
             try:
                 subject_df = self.encode_EMA_results(participantID)
+                # get the first entry of the initial_prompt_date column
+                start_date = subject_df['initial_prompt_date'].iloc[0]
+                # get the last entry of the initial_prompt_date column
+                end_date = subject_df['initial_prompt_date'].iloc[-1]
+                # append the participantID, start_date, end_date to the participant_dict
+                participant_dict[participantID] = [start_date, end_date]
             except FileNotFoundError:
                 self.logger.error('process_all_participants_ema(): Cannot find EMA results for ' + participantID)
+                continue
+            except Exception as e:
+                self.logger.error('process_all_participants_ema(): ' + str(e))
                 continue
             # append the subject_df to the df
             df = df.append(subject_df)
@@ -132,6 +159,14 @@ class EMA:
         if not os.path.exists(self.DATA_CLEAN_DIR + 'EMA/'):
             os.makedirs(self.DATA_CLEAN_DIR + 'EMA/')
         df.to_csv(self.DATA_CLEAN_DIR + 'EMA/all.csv', index=False)
+
+        # create a study folder in the clean folder
+        if not os.path.exists(self.DATA_CLEAN_DIR + 'study/'):
+            os.makedirs(self.DATA_CLEAN_DIR + 'study/')
+        #save json object to a json file
+        with open(self.DATA_CLEAN_DIR + 'study/study_dates.json', 'w') as fp:
+            json.dump(participant_dict, fp)
+
 
 obj = EMA()
 obj.process_all_participants_ema()
