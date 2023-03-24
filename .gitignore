@@ -1,2 +1,4 @@
 /data/raw/*
 server.config.ini
+/data/filtered/*
+/ENV/*

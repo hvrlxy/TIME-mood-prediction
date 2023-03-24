@@ -7,11 +7,11 @@ Response options for 5 points scales
 5 = Extremely
 '''
 five_point_Likert = {
-    "Not at all": 1,
-    "A little": 2,
-    "Moderately": 3,
-    "Quite a bit": 4,
-    "Extremely": 5
+    "Not at all": 0,
+    "A little": 1,
+    "Moderately": 2,
+    "Quite a bit": 3,
+    "Extremely": 4
 }
 
 
@@ -78,4 +78,55 @@ question_map = {
     'x17_traveled': yes_no_Likert,
     'x16_missed': missed_work_Likert,
     'x15_sick': illness_Likert
+}
+
+'''
+Encode the location labels:
+"Home"
+"Work"
+"School/College"
+"Park/Playground"
+"Sports field/Court/Golf Course"
+"Gym/Health club/Fitness center"
+"Friend’s/Romantic partner’s place"
+"Family member’s place"
+"Restaurant/bar/cafe"
+"Store/shopping venue"
+ "Church/place of worship"
+"Movie theater/entertainment venue"
+"Beach/pool"
+"Transit center/bus stop"
+"Medical clinic/Hospital"
+"In car/vehicle/train"
+"Salon/barber/spa"
+"Library/museum"
+"Gas station/convenience store"
+"Parking lot/structure"
+"Hotel/motel"
+"Other"
+'''
+
+location_map = {
+    "Home": 1,
+    "Work": 2,
+    "School/College": 3,
+    "Park/Playground": 4,
+    "Sports field/Court/Golf Course": 5,
+    "Gym/Health club/Fitness center": 6,
+    "Friend’s/Romantic partner’s place": 7,
+    "Family member’s place": 8,
+    "Restaurant/bar/cafe": 9,
+    "Store/shopping venue": 10,
+    "Church/place of worship": 11,
+    "Movie theater/entertainment venue": 12,
+    "Beach/pool": 13,
+    "Transit center/bus stop": 14,
+    "Medical clinic/Hospital": 15,
+    "In car/vehicle/train": 16,
+    "Salon/barber/spa": 17,
+    "Library/museum": 18,
+    "Gas station/convenience store": 19,
+    "Parking lot/structure": 20,
+    "Hotel/motel": 21,
+    "Other": 22
 }

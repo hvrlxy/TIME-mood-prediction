@@ -6,6 +6,7 @@ from logger import Logger
 from participant import Participant
 from globals import *
 import json
+import datetime as dt
 
 warnings.filterwarnings("ignore")
 
@@ -32,7 +33,15 @@ class EMA:
             self.logger.error('get_EMA_results(): Cannot find EMA results for ' + participantID)
             return None
         # only get the initial_prompt_date, answer_status and all columns starting with x
-        EMA_df = EMA_df[['initial_prompt_date', 'answer_status'] + [col for col in EMA_df.columns if col.startswith('x')]]
+        EMA_df = EMA_df[['initial_prompt_local_time', 'answer_status'] + [col for col in EMA_df.columns if col.startswith('x')]]
+        # convert initial_prompt_local_time to datetime with timezone at the end
+        EMA_df['initial_prompt_date'] = pd.to_datetime(EMA_df['initial_prompt_local_time'])
+        # minute 4 hours
+        EMA_df['initial_prompt_date'] = EMA_df['initial_prompt_date'] - pd.Timedelta(hours=6)
+        # drop the initial_prompt_local_time column
+        EMA_df = EMA_df.drop(columns=['initial_prompt_local_time'])
+        # turn it back to string
+        EMA_df['initial_prompt_date'] = EMA_df['initial_prompt_date'].apply(lambda x: x.strftime('%Y-%m-%d'))
         return EMA_df
     
     def impute_missing_date(self, EMA_df):

@@ -11,7 +11,6 @@ warnings.filterwarnings("ignore")
 
 class Motion:
     def __init__(self):
-        self.logger = Logger().getLog('motion')
         self.ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) + '/../..'
         self.DATA_RAW_DIR = self.ROOT_DIR + '/data/raw/'
         self.DATA_FILTER_DIR = self.ROOT_DIR + '/data/filtered/'
