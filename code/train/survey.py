@@ -1,18 +1,24 @@
 '''
 This script shows the CNN feature extraction model for the survey data.
 '''
-import tensorflow as tf
-from keras.models import Sequential
-from keras.models import Model
-from keras.layers import Dense
-from keras.layers import RepeatVector
-from keras.utils import plot_model
+import os
+import numpy as np
+from collections import Counter
 
-from keras.layers import Input
+from models import *
 
-from keras.layers import Conv1D
-from keras.layers import MaxPooling1D
-from keras.layers import Flatten
-from keras.layers import Dropout
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__)) + '/../..'
+DATA_RAW_DIR = ROOT_DIR + '/data/raw/'
+DATA_FILTER_DIR = ROOT_DIR + '/data/trained/'
 
+# open the input file and print out the shape
+X = np.load("/survey_data.npz")['arr_0']
+y = np.load("/stress.npz")['arr_0']
+input_shape = X.shape
 
+print(Counter(y))
+# get the number of labels in y
+n_labels = len(np.unique(y))
+
+model = survey_model(input_shape, n_labels)
+model.fit(X, y, epochs=150, verbose=1, class_weight=class_weight)
